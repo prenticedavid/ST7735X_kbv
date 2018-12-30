@@ -105,6 +105,9 @@ void diag_show(void)
     diag_reg(F("ST7735_RDMADCTL"), 0x0B, 1);
     diag_reg(F("ST7735_RDPIXFMT"), 0x0C, 1);
     diag_reg(F("ST7735_RDSELFDIAG"), 0x0F, 1);
+    diag_reg(F("ST7735_RDDID1"), 0xDA, 1);
+    diag_reg(F("ST7735_RDDID2"), 0xDB, 1);
+    diag_reg(F("ST7735_RDDID3"), 0xDC, 1);
 }
 
 void setup(void) {
