@@ -203,16 +203,16 @@ void ST7735X_kbv::setRotation(uint8_t r)
     Adafruit_GFX::setRotation(r & 3);
     switch (rotation) {
     case 0:
-        mac = 0xD8;
+        mac = 0x48;
         break;
     case 1:        //LANDSCAPE 90 degrees
-        mac = 0x68;
+        mac = 0x28;
         break;
     case 2:
-        mac = 0x08;
+        mac = 0x98;
         break;
     case 3:
-        mac = 0xB8;
+        mac = 0xF8;
         break;
     }
 	mac ^= (_lcd_xor);
@@ -225,7 +225,7 @@ void ST7735X_kbv::drawPixel(int16_t x, int16_t y, uint16_t color)
     if (x < 0 || y < 0 || x >= width() || y >= height())
         return;
 	if (rotation == 0) y += __OFFSET;
-	if (rotation == 3) x += __OFFSET;
+	if (rotation == 1) x += __OFFSET;
     spibuf[0] = x >> 8;
     spibuf[1] = x;
 	pushCommand(ST7735X_CASET, spibuf, 2);
@@ -240,7 +240,7 @@ void ST7735X_kbv::drawPixel(int16_t x, int16_t y, uint16_t color)
 void ST7735X_kbv::setAddrWindow(int16_t x, int16_t y, int16_t x1, int16_t y1)
 {
 	if (rotation == 0) y += __OFFSET, y1 += __OFFSET;
-	if (rotation == 3) x += __OFFSET, x1 += __OFFSET;
+	if (rotation == 1) x += __OFFSET, x1 += __OFFSET;
     spibuf[0] = x >> 8;
     spibuf[1] = x;
     spibuf[2] = x1 >> 8;
@@ -350,7 +350,7 @@ void ST7735X_kbv::invertDisplay(boolean i)
 
 void ST7735X_kbv::vertScroll(int16_t top, int16_t scrollines, int16_t offset)
 {
-    if (rotation == 0 || rotation == 3) top += __OFFSET;
+    if (rotation == 0 || rotation == 1) top += __OFFSET;
     int16_t bfa = HEIGHT + __OFFSET - top - scrollines;  // bottom fixed area
     int16_t vsp;
     vsp = top + offset; // vertical start position
@@ -391,6 +391,7 @@ const uint8_t PROGMEM table7735S[] = {
     (ST7735X_INVOFF), 0, //no inversion
     //(ST7735X_MADCTL), 1, 0xC8, //MX, MY, RGB mode
     (ST7735X_MADCTL), 1, 0x00,   //MX, MY, RGB mode
+/*
     //ST7735XR Gamma Sequence
     (ST7735X_GMCTRP1), 16,
     0x0f, 0x1a, 0x0f, 0x18, 0x2f, 0x28, 0x20, 0x22, 0x1f, 0x1b, 0x23, 0x37,
@@ -398,7 +399,7 @@ const uint8_t PROGMEM table7735S[] = {
     (ST7735X_GMCTRN1), 16,
     0x0f, 0x1b, 0x0f, 0x17, 0x33, 0x2c, 0x29, 0x2e, 0x30, 0x30, 0x39, 0x3f,
     0x00, 0x07, 0x03, 0x10,
-
+*/
     (ST7735X_CASET), 4, 0x00, 0x00, 0x00, 0x7f,
     (ST7735X_RASET), 4, 0x00, 0x00, 0x00, 0x9f,
     (0xF0), 1, 0x00,            //Enable test command [01]
@@ -458,13 +459,13 @@ const uint8_t PROGMEM table9163C[] = {
     TFTLCD_DELAY, 5,
     (CMD_GAMMASET), 1, 0x04,
     TFTLCD_DELAY, 1,
-    (CMD_GAMRSEL), 1, 0x01,
+    (CMD_GAMRSEL), 1, 0x00,      //.kbv don't select user GAMMA
     TFTLCD_DELAY, 1,
     (ILI9163_NORON), 0,         //Normal
 //    (CMD_DFUNCTR), 2, 0xFF, 0x06, //Display Function set 5 ??NL
 //#if __OFFSET == 0
 //    (CMD_SDRVDIR), 1, 0x01,
-//    (CMD_GDRVDIR), 1, 0x01,
+    (CMD_GDRVDIR), 1, 0x01,
 //#else
 //    (CMD_SDRVDIR), 1, 0x00,
 //    (CMD_GDRVDIR), 1, 0x00,
@@ -508,7 +509,7 @@ void ST7735X_kbv::begin(uint16_t ID)
 	case 0x0091:    //wot readID()
 	case 0x9101:
 	    __OFFSET = 32;
-	    _lcd_xor = 0x00;
+	    _lcd_xor = 0x80;
 		p = (uint8_t *) table9101;
 		size = sizeof(table9101);
 		break;
@@ -525,12 +526,12 @@ common_9163:
 		break;
 	case 0x7734:
 	    __OFFSET = 32;
-	    _lcd_xor = 0x00;
+	    _lcd_xor = 0x90;
 		goto common_7735;
 	case 0x7C89:
 	case 0x7735:
 	default: 
-		_lcd_xor = 0x08;
+		_lcd_xor = 0x98;
 common_7735:
 	    _is7735 = 1;
 		p = (uint8_t *) table7735S;
