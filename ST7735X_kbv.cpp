@@ -3,8 +3,9 @@
 
 static uint8_t done_reset;
 
-ST7735X_kbv::ST7735X_kbv(int w, int h):Adafruit_GFX(w, h)
+ST7735X_kbv::ST7735X_kbv(uint16_t id, int w, int h):Adafruit_GFX(w, h)
 {
+    _lcd_ID = id;
 }
 
 void ST7735X_kbv::reset(void)
@@ -67,7 +68,8 @@ uint32_t ST7735X_kbv::readReg32(uint16_t reg)
 uint16_t ST7735X_kbv::readID(void)
 {
 	if (!done_reset) reset();
-    return readRegister(4) >> 8;	
+//    return readRegister(4) >> 8;
+    return _lcd_ID;	
 }
 
 #define ST7735X_NOP     0x00
